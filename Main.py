@@ -61,20 +61,35 @@ def artist_top_songs(token, artist_id):
     json_result = json.loads(result.content)["tracks"]
     return json_result
 
+def artist_albums(token, artist_id):
+    url = f"https://api.spotify.com/v1/artists/{artist_id}/albums?include_groups=album,single"
+    headers = get_auth_header(token)
+    result = get(url, headers=headers)
+    json_result = json.loads(result.content)["items"]
+    return json_result
+
+
 def main_loop():
     token = get_token()
     artist_id = get_artist_id(token)
     while True:
-        num_inp = input("Please enter the desired number for the information about the selected artist. \n1.) Artists Top Songs \n")
-        try:
-            value = int(num_inp)
+        num_inp = input("Please enter the desired number for the information about the selected artist. \n1.) Artists Top Songs \n2.) Artists Albums\n")
+        if num_inp == "1" or num_inp == "2":
             break
-        except ValueError:
-            print("Please select a correct number")
-    if value == 1:
+        else:
+            print("Please choose a correct nunber")
+    if num_inp == "1":
         print("Here is the list of the top 10 songs by the artist:")
         song_list = artist_top_songs(token, artist_id)
         for i, song in enumerate(song_list): #We use enumerate to get both the index and value for the item, 
             print(f"{i+1}. {song['name']}")
+    elif num_inp == "2":
+        print("Here is the list of all the albums by the artist, sorted by popularity:")
+        album_list = artist_albums(token, artist_id)
+        for i, album in enumerate(album_list): #We use enumerate to get both the index and value for the item, 
+            print(f"{album['name']} | {album['total_tracks']} total tracks | ({album['release_date']})")
+    else:
+        print
+
 main_loop()   
 
