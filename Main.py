@@ -47,8 +47,34 @@ def artist_search(token, artist_name):
     
     return json_result[0]
     
+def get_artist_id(token):
+    artist_input = str(input("Please enter an artist: "))
+    result = artist_search(token, artist_input)
+    print(result["name"]) #Used for testing purposes, shows the name spotify sends back based on the user input
+    artist_id = result["id"]
+    return artist_id
 
-#This is where the search function should go
-token = get_token()
-result = artist_search(token, "ACDC")
-artist_id = result["id"]
+def artist_top_songs(token, artist_id):
+    url = f"https://api.spotify.com/v1/artists/{artist_id}/top-tracks" #given artist id, will search through the artists top 10 tracks
+    headers = get_auth_header(token)
+    result = get(url, headers=headers)
+    json_result = json.loads(result.content)["tracks"]
+    return json_result
+
+def main_loop():
+    token = get_token()
+    artist_id = get_artist_id(token)
+    while True:
+        num_inp = input("Please enter the desired number for the information about the selected artist. \n1.) Artists Top Songs \n")
+        try:
+            value = int(num_inp)
+            break
+        except ValueError:
+            print("Please select a correct number")
+    if value == 1:
+        print("Here is the list of the top 10 songs by the artist:")
+        song_list = artist_top_songs(token, artist_id)
+        for i, song in enumerate(song_list): #We use enumerate to get both the index and value for the item, 
+            print(f"{i+1}. {song['name']}")
+main_loop()   
+
